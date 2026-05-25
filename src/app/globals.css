@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-mist-25 text-mist-900;
+  }
+
+  select {
+    background-image: none;
+  }
+}
+
+/* ─── Leaflet marker + popup overrides ──────────────────────── */
+/* Let the pill DivIcon container size itself from its content   */
+.leaflet-wreck-icon {
+  width: auto !important;
+  height: auto !important;
+  background: none !important;
+  border: none !important;
+}
+/* Leaflet sets img { width:auto; height:auto } — inline style wins but  */
+/* ensure the popup content img (wreck thumbnail) fills its container   */
+.wreck-popup img[style*="width: 100%"] {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ─── Leaflet zoom control styling ──────────────────────────── */
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0px 4px 8px 1px rgba(38, 39, 43, 0.12) !important;
+  border-radius: 6px !important;
+  overflow: hidden;
+}
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  color: #414651 !important;
+  background: #fff !important;
+  border: none !important;
+  border-bottom: 1px solid #E3E7E8 !important;
+}
+.leaflet-control-zoom-out {
+  border-bottom: none !important;
+}
+.leaflet-control-zoom-in:hover,
+.leaflet-control-zoom-out:hover {
+  background: #f5f7f7 !important;
+  color: #0A7B75 !important;
+}
+
+/* ─── Leaflet popup overrides ────────────────────────────────── */
+.wreck-popup .leaflet-popup-content-wrapper {
+  padding: 4px;
+  border-radius: 4px;
+  box-shadow: 0px 4px 8px 1px rgba(38, 39, 43, 0.16);
+  border: none;
+}
+.wreck-popup .leaflet-popup-content {
+  margin: 0;
+}
+.wreck-popup .leaflet-popup-tip-container {
+  display: none;
+}
+.leaflet-attribution-flag {
+  display: none !important;
+}
+.leaflet-control-attribution {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+@layer components {
+  .search-input {
+    @apply w-full bg-white/50 border border-mist-400 rounded px-3 py-2
+      font-raleway font-medium text-base text-[#a0a0ab] placeholder:text-[#a0a0ab]
+      shadow-[0px_1px_2px_0px_rgba(10,13,18,0.05)] outline-none
+      transition-[border-color,background-color] duration-200;
+  }
+  .search-input:focus {
+    @apply border-brand-700 bg-white/70 text-mist-900;
+  }
+}

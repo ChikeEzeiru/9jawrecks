@@ -7,33 +7,87 @@ import Image from "next/image";
 
 /* ─── Data ───────────────────────────────────────────────────────── */
 const IMAGES = [
-  { src: "/images/hero-1.png", alt: "Shipwreck in Nigerian waters" },
-  { src: "/images/hero-2.png", alt: "Underwater wreck discovery" },
-  { src: "/images/hero-3.png", alt: "Diving at a Nigerian wreck site" },
+  {
+    src: "/images/wrecks Hero pic 1.avif",
+    alt: "Shipwreck in Nigerian waters",
+  },
+  { src: "/images/wrecks Hero pic 2.avif", alt: "Underwater wreck discovery" },
+  {
+    src: "/images/wrecks Hero pic 3.avif",
+    alt: "Diving at a Nigerian wreck site",
+  },
+  { src: "/images/wrecks Hero pic 4.avif", alt: "Underwater wreck discovery" },
+  {
+    src: "/images/wrecks Hero pic 5.avif",
+    alt: "Diving at a Nigerian wreck site",
+  },
 ];
 
 // Subtle Ken Burns — each image drifts in a different direction.
 // Scale range is small (4%) so the effect is felt, not seen.
 const KEN_BURNS = [
-  { fromScale: 1.0,  toScale: 1.04, fromX: "0%",   toX: "-1%",  fromY: "0%",  toY: "-0.5%" },
-  { fromScale: 1.04, toScale: 1.0,  fromX: "-1%",  toX: "0%",   fromY: "-0.5%", toY: "0%"  },
-  { fromScale: 1.0,  toScale: 1.04, fromX: "0.5%", toX: "-0.5%",fromY: "0%",  toY: "-0.5%" },
+  {
+    fromScale: 1.0,
+    toScale: 1.04,
+    fromX: "0%",
+    toX: "-1%",
+    fromY: "0%",
+    toY: "-0.5%",
+  },
+  {
+    fromScale: 1.04,
+    toScale: 1.0,
+    fromX: "-1%",
+    toX: "0%",
+    fromY: "-0.5%",
+    toY: "0%",
+  },
+  {
+    fromScale: 1.0,
+    toScale: 1.04,
+    fromX: "0.5%",
+    toX: "-0.5%",
+    fromY: "0%",
+    toY: "-0.5%",
+  },
+  {
+    fromScale: 1.04,
+    toScale: 1.0,
+    fromX: "0.5%",
+    toX: "-1%",
+    fromY: "-0.5%",
+    toY: "0%",
+  },
+  {
+    fromScale: 1.0,
+    toScale: 1.04,
+    fromX: "-0.5%",
+    toX: "0.5%",
+    fromY: "-0.5%",
+    toY: "0.5%",
+  },
 ];
 
-const DWELL_MS      = 7000; // ms each image is displayed
-const CROSSFADE_S   = 1.4;  // seconds for the opacity crossfade
+const DWELL_MS = 7000; // ms each image is displayed
+const CROSSFADE_S = 1.4; // seconds for the opacity crossfade
 const KB_DURATION_S = DWELL_MS / 1000 + CROSSFADE_S + 1; // Ken Burns outlasts the dwell
 
 const NIGERIAN_STATES = [
-  "Akwa Ibom", "Bayelsa", "Cross River", "Delta", "Lagos", "Ondo", "Rivers",
+  "Akwa Ibom",
+  "Bayelsa",
+  "Cross River",
+  "Delta",
+  "Lagos",
+  "Ondo",
+  "Rivers",
 ];
 const WRECK_TYPES = ["Shipwreck", "Plane Wreck", "Vehicle", "Artificial Reef"];
-const HEADING     = "DISCOVER NIGERIA'S UNDERWATER WONDERS";
+const HEADING = "DISCOVER NIGERIA'S UNDERWATER WONDERS";
 
 /* ─── Component ──────────────────────────────────────────────────── */
 export default function HeroSection() {
-  const layerRefs  = useRef<(HTMLDivElement | null)[]>([]);
-  const imgRefs    = useRef<(HTMLImageElement | null)[]>([]);
+  const layerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
   const headingRef = useRef<HTMLDivElement>(null);
   const currentIdx = useRef(0);
 
@@ -45,8 +99,13 @@ export default function HeroSection() {
     gsap.fromTo(
       img,
       { scale: kb.fromScale, x: kb.fromX, y: kb.fromY },
-      { scale: kb.toScale,   x: kb.toX,   y: kb.toY,
-        duration: KB_DURATION_S, ease: "none" }
+      {
+        scale: kb.toScale,
+        x: kb.toX,
+        y: kb.toY,
+        duration: KB_DURATION_S,
+        ease: "none",
+      }
     );
   };
 
@@ -62,25 +121,36 @@ export default function HeroSection() {
     gsap.set(nextLayer, { zIndex: 1, opacity: 0 });
     gsap.set(currLayer, { zIndex: 2 });
 
-    gsap.timeline({
-      onComplete() {
-        gsap.set(currLayer, { zIndex: 0 });
-        gsap.set(nextLayer, { zIndex: 2 });
-        currentIdx.current = next;
-      },
-    })
-      .to(nextLayer, { opacity: 1, duration: CROSSFADE_S, ease: "power2.inOut" }, 0)
-      .to(currLayer, { opacity: 0, duration: CROSSFADE_S, ease: "power2.inOut" }, 0);
+    gsap
+      .timeline({
+        onComplete() {
+          gsap.set(currLayer, { zIndex: 0 });
+          gsap.set(nextLayer, { zIndex: 2 });
+          currentIdx.current = next;
+        },
+      })
+      .to(
+        nextLayer,
+        { opacity: 1, duration: CROSSFADE_S, ease: "power2.inOut" },
+        0
+      )
+      .to(
+        currLayer,
+        { opacity: 0, duration: CROSSFADE_S, ease: "power2.inOut" },
+        0
+      );
   };
 
   /* ── Carousel bootstrap ────────────────────────────────────────── */
   useEffect(() => {
     const layers = layerRefs.current;
-    const imgs   = imgRefs.current;
+    const imgs = imgRefs.current;
 
     // First image visible, rest hidden
-    layers.forEach((layer, i) =>
-      layer && gsap.set(layer, { opacity: i === 0 ? 1 : 0, zIndex: i === 0 ? 2 : 0 })
+    layers.forEach(
+      (layer, i) =>
+        layer &&
+        gsap.set(layer, { opacity: i === 0 ? 1 : 0, zIndex: i === 0 ? 2 : 0 })
     );
 
     applyKenBurns(0);
@@ -104,7 +174,14 @@ export default function HeroSection() {
       gsap.fromTo(
         ".hero-word",
         { y: 60, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, stagger: 0.08, ease: "power3.out", delay: 0.4 }
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          stagger: 0.08,
+          ease: "power3.out",
+          delay: 0.4,
+        }
       );
     }, headingRef);
     return () => ctx.revert();
@@ -113,19 +190,21 @@ export default function HeroSection() {
   /* ── Render ────────────────────────────────────────────────────── */
   return (
     <section className="relative w-full flex flex-col items-center bg-mist-25 pt-[72px]">
-
       {/* ── Carousel ─────────────────────────────────────────────── */}
       <div className="relative w-[calc(100%-32px)] sm:w-[calc(100%-64px)] md:w-[calc(100%-80px)] max-w-[1320px] h-[min(480px,65vh)] md:h-[min(680px,85vh)] overflow-hidden rounded-b-xl">
-
         {IMAGES.map((image, i) => (
           <div
             key={image.src}
-            ref={(el) => { layerRefs.current[i] = el; }}
+            ref={(el) => {
+              layerRefs.current[i] = el;
+            }}
             className="absolute inset-0"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              ref={(el) => { imgRefs.current[i] = el; }}
+              ref={(el) => {
+                imgRefs.current[i] = el;
+              }}
               src={image.src}
               alt={image.alt}
               className="absolute inset-0 w-full h-full object-cover will-change-transform"
@@ -147,7 +226,11 @@ export default function HeroSection() {
             }}
           >
             {HEADING.split(" ").map((word, i) => (
-              <span key={i} className="hero-word inline-block" style={{ opacity: 0 }}>
+              <span
+                key={i}
+                className="hero-word inline-block"
+                style={{ opacity: 0 }}
+              >
                 {word}
               </span>
             ))}
@@ -172,7 +255,11 @@ export default function HeroSection() {
           {/* Name — full width on mobile */}
           <div className="col-span-2 lg:flex-1 lg:min-w-0">
             <Field label="Name">
-              <input type="text" placeholder="e.g. The Jolly Roger" className="search-input" />
+              <input
+                type="text"
+                placeholder="e.g. The Jolly Roger"
+                className="search-input"
+              />
             </Field>
           </div>
 
@@ -180,9 +267,18 @@ export default function HeroSection() {
           <div className="lg:flex-1 lg:min-w-0">
             <Field label="State">
               <div className="relative">
-                <select defaultValue="" className="search-input appearance-none pr-8 cursor-pointer">
-                  <option value="" disabled>e.g. Lagos</option>
-                  {NIGERIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+                <select
+                  defaultValue=""
+                  className="search-input appearance-none pr-8 cursor-pointer"
+                >
+                  <option value="" disabled>
+                    e.g. Lagos
+                  </option>
+                  {NIGERIAN_STATES.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
                 </select>
                 <ChevronIcon />
               </div>
@@ -193,9 +289,18 @@ export default function HeroSection() {
           <div className="lg:flex-1 lg:min-w-0">
             <Field label="Type of Wreck">
               <div className="relative">
-                <select defaultValue="" className="search-input appearance-none pr-8 cursor-pointer">
-                  <option value="" disabled>e.g. Plane wreck</option>
-                  {WRECK_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                <select
+                  defaultValue=""
+                  className="search-input appearance-none pr-8 cursor-pointer"
+                >
+                  <option value="" disabled>
+                    e.g. Plane wreck
+                  </option>
+                  {WRECK_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
                 </select>
                 <ChevronIcon />
               </div>
@@ -212,7 +317,13 @@ export default function HeroSection() {
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-2 w-full min-w-0">
       <span className="font-raleway font-bold text-base text-[#3f3f46] tracking-[-0.64px] whitespace-nowrap">
@@ -226,7 +337,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function ChevronIcon() {
   return (
     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-      <Image src="/images/chevron-down.svg" alt="" width={10} height={6} className="opacity-60" />
+      <Image
+        src="/images/chevron-down.svg"
+        alt=""
+        width={10}
+        height={6}
+        className="opacity-60"
+      />
     </div>
   );
 }

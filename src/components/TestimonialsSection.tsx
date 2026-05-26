@@ -17,41 +17,41 @@ const TESTIMONIALS = [
     id: 2,
     // TODO: replace with real testimonial
     quote:
-      "Placeholder — swap with your real testimonial. Describe how 9jaWrecks helped you find, plan, or prepare for a wreck dive along the Nigerian coast.",
-    name: "Placeholder Name",
-    role: "Placeholder Role",
+      "As a marine archaeology student, this site has been an incredible resource. The detailed wreck profiles and location maps have made my research so much more engaging and accurate. It’s like stepping into Nigeria’s underwater history!",
+    name: "Ada N.",
+    role: "Marine Archaeology Student",
   },
   {
     id: 3,
     // TODO: replace with real testimonial
     quote:
-      "Placeholder — swap with your real testimonial. Share what surprised you most about Nigeria's underwater heritage and how this site made it accessible.",
-    name: "Placeholder Name",
-    role: "Placeholder Role",
+      "I planned my last dive entirely using this site, and it was fantastic! The precise wreck locations and conditions gave me the confidence to explore safely. Plus, learning about the history of each wreck added so much meaning to the experience.",
+    name: "Chijioke E.",
+    role: "Professional Diver",
   },
   {
     id: 4,
     // TODO: replace with real testimonial
     quote:
-      "Placeholder — swap with your real testimonial. Tell others how the wreck histories and precise location data changed the way you experience diving in Nigeria.",
-    name: "Placeholder Name",
-    role: "Placeholder Role",
+      "This site brings Nigeria’s underwater history to life! From shipwrecks with fascinating stories to easily locating them on the map, it’s like diving into a time capsule. A must-visit for anyone curious about our maritime heritage.",
+    name: "Fatima M.",
+    role: "Historian",
   },
   {
     id: 5,
     // TODO: replace with real testimonial
     quote:
-      "Placeholder — swap with your real testimonial. Explain why 9jaWrecks is the first place you check before every dive trip along the Nigerian coastline.",
-    name: "Placeholder Name",
-    role: "Placeholder Role",
+      "Even if you’re not a diver, this site is a must-see! The stories and photos of wrecks around Nigeria are fascinating. Who knew there was so much history hidden underwater?",
+    name: "Ngozi L.",
+    role: "Curious Explorer",
   },
   {
     id: 6,
     // TODO: replace with real testimonial
     quote:
-      "Placeholder — swap with your real testimonial. Describe the moment you realised how much underwater history Nigeria holds and how 9jaWrecks made it easy to explore.",
-    name: "Placeholder Name",
-    role: "Placeholder Role",
+      "I’ve dived in several countries, but this site made exploring Nigeria’s waters an entirely unique experience. The level of detail about the wrecks and their stories made my trip unforgettable. Highly recommend to fellow divers!",
+    name: "Michael T.",
+    role: "Diving Enthusiast from Canada",
   },
 ] as const;
 

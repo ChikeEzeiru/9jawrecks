@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents, ZoomControl } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap, ZoomControl } from "react-leaflet";
 import { motion, AnimatePresence } from "framer-motion";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -105,12 +105,6 @@ function FitBounds() {
   return null;
 }
 
-/* ─── Collapse card when map background is clicked ───────────── */
-function MapClickHandler({ onMapClick }: { onMapClick: () => void }) {
-  useMapEvents({ click: onMapClick });
-  return null;
-}
-
 /* ─── Invisible icon (hides the marker while its card is open) ── */
 const HIDDEN_ICON = L.divIcon({
   className: "leaflet-wreck-icon",
@@ -156,19 +150,22 @@ function WreckCard({
     <motion.div
       key={wreck.id}
       /*
-       * Card bottom-left sits just above the pill top edge.
-       * iconAnchor y = 14 → pill top = y − 14 → card top = y − 14 − CARD_H
+       * Portaled into document.body with position:fixed so the card is never
+       * clipped by the map container's overflow:hidden.
        *
-       * transformOrigin "bottom left" means scale grows from the exact
-       * point where the pill sits, so the card appears to emerge from the marker.
+       * x/y are viewport-relative (from getBoundingClientRect + containerPoint),
+       * so fixed positioning places the card correctly regardless of scroll.
+       *
+       * transformOrigin "bottom left" keeps the spring growth anchored at the
+       * pill position so the card appears to emerge from the marker.
        */
       style={{
-        position: "absolute",
+        position: "fixed",
         left: x,
         top: y - 14 - CARD_H,
         width: 184,
         transformOrigin: "bottom left",
-        zIndex: 900,
+        zIndex: 9999,
         pointerEvents: "all",
       }}
       initial={{ scale: 0, opacity: 0 }}
@@ -178,6 +175,7 @@ function WreckCard({
         scale:   { type: "spring", stiffness: 420, damping: 32 },
         opacity: { duration: 0.12 },
       }}
+      /* Stop clicks inside the card from bubbling to the document listener */
       onClick={(e) => e.stopPropagation()}
     >
       <div
@@ -294,7 +292,7 @@ function WreckCard({
   );
 }
 
-/* ─── Card layer: tracks lat/lng → screen px, portals card in ── */
+/* ─── Card layer: tracks lat/lng → viewport px, portals into body ── */
 function CardLayer({
   selectedId,
   onClose,
@@ -306,6 +304,7 @@ function CardLayer({
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const selectedWreck = WRECKS.find((w) => w.id === selectedId) ?? null;
 
+  /* ── Track marker position in viewport coords ─────────────────── */
   useEffect(() => {
     if (!selectedWreck) {
       setPos(null);
@@ -313,50 +312,58 @@ function CardLayer({
     }
 
     const update = () => {
-      const p = map.latLngToContainerPoint([
-        selectedWreck.lat,
-        selectedWreck.lng,
-      ]);
-      setPos({ x: p.x, y: p.y });
+      const p    = map.latLngToContainerPoint([selectedWreck.lat, selectedWreck.lng]);
+      const rect = map.getContainer().getBoundingClientRect();
+      // Combine container-relative point with viewport-relative rect
+      // → gives viewport-relative coords for position:fixed
+      setPos({ x: rect.left + p.x, y: rect.top + p.y });
     };
 
     update();
     map.on("move zoom", update);
+    // Keep card aligned as the page scrolls or the window resizes
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update, { passive: true });
     return () => {
       map.off("move zoom", update);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
     };
   }, [map, selectedWreck]);
 
+  /* ── Close on any click outside the card ─────────────────────── */
+  useEffect(() => {
+    if (!selectedId) return;
+    // Marker clicks call e.originalEvent.stopPropagation(), so they never
+    // reach this listener and won't immediately close a freshly-opened card.
+    document.addEventListener("click", onClose);
+    return () => document.removeEventListener("click", onClose);
+  }, [selectedId, onClose]);
+
+  if (typeof document === "undefined") return null;
+
   return createPortal(
-    /* Full-size overlay — pointer-events: none so map stays interactive */
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        pointerEvents: "none",
-        zIndex: 800,
-        overflow: "hidden",
-      }}
-    >
-      <AnimatePresence>
-        {selectedWreck && pos && (
-          <WreckCard
-            key={selectedWreck.id}
-            wreck={selectedWreck}
-            x={pos.x}
-            y={pos.y}
-            onClose={onClose}
-          />
-        )}
-      </AnimatePresence>
-    </div>,
-    map.getContainer()
+    <AnimatePresence>
+      {selectedWreck && pos && (
+        <WreckCard
+          key={selectedWreck.id}
+          wreck={selectedWreck}
+          x={pos.x}
+          y={pos.y}
+          onClose={onClose}
+        />
+      )}
+    </AnimatePresence>,
+    document.body
   );
 }
 
 /* ─── Component ─────────────────────────────────────────────── */
 export default function WreckMap() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  // Stable reference so the CardLayer effect deps don't change on every render
+  const closeCard = useCallback(() => setSelectedId(null), []);
 
   return (
     <MapContainer
@@ -369,8 +376,7 @@ export default function WreckMap() {
     >
       <FitBounds />
       <ZoomControl position="bottomright" />
-      <MapClickHandler onMapClick={() => setSelectedId(null)} />
-      <CardLayer selectedId={selectedId} onClose={() => setSelectedId(null)} />
+      <CardLayer selectedId={selectedId} onClose={closeCard} />
 
       <TileLayer
         url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
@@ -384,9 +390,9 @@ export default function WreckMap() {
           icon={selectedId === w.id ? HIDDEN_ICON : pillIcon(w.name)}
           eventHandlers={{
             click(e) {
-              // Prevent the click bubbling to the map (would immediately collapse)
+              // Stop the native event from reaching the document click listener
+              // (which would immediately close the card we're about to open)
               e.originalEvent.stopPropagation();
-              // Only open — never toggle closed from the marker itself
               setSelectedId(w.id);
             },
           }}
